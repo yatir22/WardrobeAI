@@ -31,7 +31,7 @@ const UploadClothes = ({ clothes, setClothes }) => {
     
     try {
       console.log('🔍 Frontend Debug: Starting upload with category:', category);
-      const res = await fetch(`http://localhost:5000/upload?category=${category}`, {
+      const res = await fetch(`https://wardrobeai-backend.onrender.com/upload?category=${category}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`

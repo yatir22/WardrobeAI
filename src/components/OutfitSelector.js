@@ -24,9 +24,9 @@ const OutfitSelector = ({ selectedOutfit, setSelectedOutfit }) => {
         
         console.log('🔍 Frontend Debug: Fetching outfits with JWT...');
         const [topsRes, bottomsRes, dressesRes] = await Promise.all([
-          axios.get('http://localhost:5000/outfits?folder=top', config),
-          axios.get('http://localhost:5000/outfits?folder=bottom', config),
-          axios.get('http://localhost:5000/outfits?folder=dress', config),
+          axios.get('https://wardrobeai-backend.onrender.com/outfits?folder=top', config),
+          axios.get('https://wardrobeai-backend.onrender.com/outfits?folder=bottom', config),
+          axios.get('https://wardrobeai-backend.onrender.com/outfits?folder=dress', config),
         ]);
         
         const tops = topsRes.data.urls.map(url => ({ url, category: 'top' }));
