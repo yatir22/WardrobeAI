@@ -13,18 +13,30 @@ const Login = ({ onLogin, setShowCreate }) => {
       return;
     }
     setError('');
+    
     try {
-      const res = await fetch('https://wardrobeai-backend.onrender.com/login', {
+      const res = await fetch('http://localhost:5000/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, username, password })
       });
+      
       const data = await res.json();
+      
+      
       if (!res.ok) {
         setError(data.error || 'Login failed');
+     
         return;
       }
-      onLogin && onLogin(data.user);
+      
+      // Store JWT token in localStorage
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+        onLogin && onLogin(data.user);
+      } else {
+        setError('No token received from server');
+      }
     } catch (err) {
       setError('Server error. Please try again.');
     }

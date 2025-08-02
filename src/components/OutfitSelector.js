@@ -11,19 +11,34 @@ const OutfitSelector = ({ selectedOutfit, setSelectedOutfit }) => {
   useEffect(() => {
     async function fetchAllOutfits() {
       try {
-        if (!user?.id && !user?._id) return;
-        const userId = user.id || user._id;
+        const token = localStorage.getItem('token');        
+        if (!token) {
+          return;
+        }
+        
+        const config = {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        };
+        
+        console.log('🔍 Frontend Debug: Fetching outfits with JWT...');
         const [topsRes, bottomsRes, dressesRes] = await Promise.all([
-          axios.get(`https://wardrobeai-backend.onrender.com/outfits?folder=top&userId=${userId}`),
-          axios.get(`https://wardrobeai-backend.onrender.com/outfits?folder=bottom&userId=${userId}`),
-          axios.get(`https://wardrobeai-backend.onrender.com/outfits?folder=dress&userId=${userId}`),
+          axios.get('http://localhost:5000/outfits?folder=top', config),
+          axios.get('http://localhost:5000/outfits?folder=bottom', config),
+          axios.get('http://localhost:5000/outfits?folder=dress', config),
         ]);
+        
         const tops = topsRes.data.urls.map(url => ({ url, category: 'top' }));
         const bottoms = bottomsRes.data.urls.map(url => ({ url, category: 'bottom' }));
         const dresses = dressesRes.data.urls.map(url => ({ url, category: 'dress' }));
+        
         setClothes([...tops, ...bottoms, ...dresses]);
       } catch (err) {
-        console.error('Failed to fetch outfits:', err);
+        console.error('❌ Frontend Debug: Failed to fetch outfits:', err);
+        if (err.response?.status === 401) {
+          console.log('❌ Frontend Debug: Unauthorized - token may be expired');
+        }
       }
     }
     fetchAllOutfits();

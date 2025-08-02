@@ -15,32 +15,39 @@ const UploadClothes = ({ clothes, setClothes }) => {
     const files = Array.from(e.target.files);
     const formData = new FormData();
     formData.append('image', files[0]);
-    // Add userId to formData
-    const userId = user?._id || user?.id;
-    if (!userId) {
-      setMessage('❌ User ID missing. Please log in again.');
+    
+    // Get JWT token instead of userId
+    const token = localStorage.getItem('token');
+    console.log('🔍 Frontend Debug: Upload token check:', token ? 'Token exists' : 'No token found');
+    
+    if (!token) {
+      setMessage('❌ Please log in again to upload.');
       setUploading(false);
       return;
     }
-    formData.append('userId', userId);
 
     setUploading(true);
     setMessage('');
+    
     try {
-      const res = await fetch(`https://wardrobeai-backend.onrender.com/upload?category=${category}`, {
+      console.log('🔍 Frontend Debug: Starting upload with category:', category);
+      const res = await fetch(`http://localhost:5000/upload?category=${category}`, {
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
         body: formData,
       });
-      const data = await res.json();
-    if (data.secure_url) {
-      const tagged = { url: data.url, category };
-      setClothes(prev => [...prev, tagged]);
-      setMessage('✅ Upload successful!');
-    } else {
-      setMessage('❌ No image URL returned.');
-    }
+      
+      const data = await res.json();      
+      if (res.ok && data.secure_url) {
+        const tagged = { url: data.secure_url, category };
+        setClothes(prev => [...prev, tagged]);
+        setMessage('✅ Upload successful!');
+      } else {
+        setMessage('❌ Upload failed: ' + (data.error || 'Unknown error'));
+      }
     } catch (err) {
-      console.error('Upload error:', err);
       setMessage('❌ Upload failed.');
     } finally {
       setUploading(false);

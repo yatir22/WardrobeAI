@@ -11,28 +11,37 @@ const UploadUserImage = ({ userImage, setUserImage }) => {
     const files = Array.from(e.target.files);
     const formData = new FormData();
     formData.append('image', files[0]);
-    // Add userId to formData
-    const userId = user?.id || user?._id;
-    if (userId) formData.append('userId', userId);
+    
+    // Get JWT token instead of userId
+    const token = localStorage.getItem('token');
+    console.log('🔍 Frontend Debug: User image upload token check:', token ? 'Token exists' : 'No token found');
+    
+    if (!token) {
+      setUploadStatus('❌ Please log in again to upload.');
+      setUploading(false);
+      return;
+    }
 
     setUploading(true);
     setUploadStatus('');
-
+    
     try {
-      const res = await fetch('https://wardrobeai-backend.onrender.com/upload-user-image', {
+      const res = await fetch('http://localhost:5000/upload-user-image', {
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
         body: formData,
       });
+      
       const data = await res.json();
-
-      if (data.urls) {
-         setUserImage(data.urls);
+      if (res.ok && data.urls) {
+        setUserImage(data.urls);
         setUploadStatus('✅ Image uploaded and metadata merged.');
       } else {
-        setUploadStatus('❌ Upload failed.');
+        setUploadStatus('❌ Upload failed: ' + (data.error || 'Unknown error'));
       }
     } catch (err) {
-      console.error('Upload error:', err);
       setUploadStatus('❌ Error uploading image.');
     } finally {
       setUploading(false);

@@ -7,6 +7,7 @@ import Preview from './components/Preview';
 import OutfitSelector from './components/OutfitSelector';
 import Tabs from './components/Tabs';
 import './App.css';
+import { useEffect } from 'react';
 
 export const UserContext = createContext();
 
@@ -20,6 +21,30 @@ function App() {
   const [showCreate, setShowCreate] = useState(false);
   const [createSuccess, setCreateSuccess] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+
+  // Auto-login if token exists
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token && !user) {
+      // Fetch user info from backend using token
+      fetch('http://localhost:5000/me', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data && data._id) {
+            setUser(data);
+          } else {
+            localStorage.removeItem('token');
+          }
+        })
+        .catch(() => {
+          localStorage.removeItem('token');
+        });
+    }
+  }, [user]);
 
   const renderTab = () => {
     switch (activeTab) {
@@ -69,6 +94,7 @@ function App() {
     setUserImage(null);
     setClothes([]);
     setSelectedOutfit([]);
+    localStorage.removeItem('token');
   };
 
   return (

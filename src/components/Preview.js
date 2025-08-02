@@ -12,29 +12,34 @@ function Preview({ userImage, selectedOutfit }) {
   const [suggesting, setSuggesting] = useState(false);
   const [suggestedReason, setSuggestedReason] = useState('');
   const [showSuggestedModal, setShowSuggestedModal] = useState(false);
-
+const token = localStorage.getItem('token');
   const handlePreview = async () => {
     let userImg = userImage?.[0];
     if (!userImg) {
       // Fetch a user image from Cloudinary for the logged-in user if not uploaded
       try {
-        const userId = user?.id || user?._id;
-        if (!userId) {
-          alert('No user logged in. Please log in and upload a user photo.');
+        const token = localStorage.getItem('token');
+        if (!token) {
+          alert('Please log in to continue.');
           return;
         }
-        console.log(userId);
-        const res = await fetch(`https://wardrobeai-backend.onrender.com/user-photos?userId=${userId}`);
+        const res = await fetch('http://localhost:5000/user-photos', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
         const data = await res.json();
-        console.log(data.url);
-        if (data.url) {
-          userImg = data.url; // Use the first available user image for this user
+        console.log('🔍 Frontend Debug: User photo response:', data);
+        
+        if (res.ok && data.url) {
+          userImg = data.url;
         } else {
-          alert('No user image found in Cloudinary for this user. Please upload a user photo.');
+          alert('No user image found. Please upload a user photo.');
           return;
         }
       } catch (err) {
-        alert('Error fetching user image from Cloudinary.');
+        alert('Error fetching user image.');
         return;
       }
     }
@@ -47,11 +52,7 @@ function Preview({ userImage, selectedOutfit }) {
     setPreviewUrl(null);
 
     try {
-      console.log("[DEBUG] Sending to /tryon:", {
-        userImageUrl: userImg,
-        clothImageUrl: selectedOutfit[0].url
-      });
-      const res = await fetch("https://wardrobeai-backend.onrender.com/tryon", {
+      const res = await fetch("http://localhost:5000/tryon", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -62,10 +63,8 @@ function Preview({ userImage, selectedOutfit }) {
 
       // Handle non-JSON (image) or JSON error response
       const contentType = res.headers.get('content-type');
-      console.log("[DEBUG] Response content-type:", contentType);
       if (contentType && contentType.startsWith('application/json')) {
         const data = await res.json();
-        console.log("[DEBUG] Response JSON:", data);
         if (data?.previewUrl) {
           setPreviewUrl(data.previewUrl);
         } else {
@@ -76,10 +75,8 @@ function Preview({ userImage, selectedOutfit }) {
         const blob = await res.blob();
         const url = URL.createObjectURL(blob);
         setPreviewUrl(url);
-        console.log("[DEBUG] Received image blob, url:", url);
       } else {
         const text = await res.text();
-        console.log("[DEBUG] Unexpected response text:", text);
         alert("Unexpected response from server.");
       }
     } catch (err) {
@@ -95,26 +92,36 @@ function Preview({ userImage, selectedOutfit }) {
     setSuggestedUrl(null);
     setSuggestedReason('');
     setShowSuggestedModal(false);
+    
     try {
-      const userId = user?.id || user?._id;
-      if (!userId) {
-        alert('User not logged in.');
+      const token = localStorage.getItem('token');      
+      if (!token) {
+        alert('Please log in to get outfit suggestions.');
         setSuggesting(false);
         return;
       }
-      // Only send userId to backend, backend will fetch features and clothes
-      const aiRes = await fetch('https://wardrobeai-backend.onrender.com/suggest-outfit', {
+      
+      console.log('🔍 Frontend Debug: Requesting outfit suggestion...');
+      // No need to send userId, backend gets it from JWT token
+      const aiRes = await fetch('http://localhost:5000/suggest-outfit', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId }),
+        headers: { 
+          'Content-Type': 'application/json', 
+          'Authorization': `Bearer ${token}` 
+        },
+        body: JSON.stringify({}), // Empty body since userId comes from token
       });
+      
       const aiData = await aiRes.json();
-      if (aiData && aiData.suggestedClothUrl) {
+      console.log('🔍 Frontend Debug: Suggest outfit response:', aiData);
+      
+      if (aiRes.ok && aiData && aiData.suggestedClothUrl) {
         setSuggestedUrl(aiData.suggestedClothUrl);
         setSuggestedReason(aiData.reason || '');
         setShowSuggestedModal(true);
+        console.log('✅ Frontend Debug: Outfit suggestion received successfully');
       } else {
-        alert('No suggestion received from AI.');
+        alert('No suggestion received: ' + (aiData.error || 'Unknown error'));
       }
     } catch (err) {
       alert('Error suggesting outfit.');
