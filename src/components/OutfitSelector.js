@@ -14,9 +14,9 @@ const OutfitSelector = ({ selectedOutfit, setSelectedOutfit }) => {
         if (!user?.id && !user?._id) return;
         const userId = user.id || user._id;
         const [topsRes, bottomsRes, dressesRes] = await Promise.all([
-          axios.get(`http://localhost:5000/outfits?folder=top&userId=${userId}`),
-          axios.get(`http://localhost:5000/outfits?folder=bottom&userId=${userId}`),
-          axios.get(`http://localhost:5000/outfits?folder=dress&userId=${userId}`),
+          axios.get(`https://wardrobeai-backend.onrender.com/outfits?folder=top&userId=${userId}`),
+          axios.get(`https://wardrobeai-backend.onrender.com/outfits?folder=bottom&userId=${userId}`),
+          axios.get(`https://wardrobeai-backend.onrender.com/outfits?folder=dress&userId=${userId}`),
         ]);
         const tops = topsRes.data.urls.map(url => ({ url, category: 'top' }));
         const bottoms = bottomsRes.data.urls.map(url => ({ url, category: 'bottom' }));

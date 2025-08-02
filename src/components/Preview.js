@@ -24,7 +24,7 @@ function Preview({ userImage, selectedOutfit }) {
           return;
         }
         console.log(userId);
-        const res = await fetch(`http://localhost:5000/user-photos?userId=${userId}`);
+        const res = await fetch(`https://wardrobeai-backend.onrender.com/user-photos?userId=${userId}`);
         const data = await res.json();
         console.log(data.url);
         if (data.url) {
@@ -51,7 +51,7 @@ function Preview({ userImage, selectedOutfit }) {
         userImageUrl: userImg,
         clothImageUrl: selectedOutfit[0].url
       });
-      const res = await fetch("http://localhost:5000/tryon", {
+      const res = await fetch("https://wardrobeai-backend.onrender.com/tryon", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -103,7 +103,7 @@ function Preview({ userImage, selectedOutfit }) {
         return;
       }
       // Only send userId to backend, backend will fetch features and clothes
-      const aiRes = await fetch('http://localhost:5000/suggest-outfit', {
+      const aiRes = await fetch('https://wardrobeai-backend.onrender.com/suggest-outfit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId }),

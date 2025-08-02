@@ -19,7 +19,7 @@ const UploadUserImage = ({ userImage, setUserImage }) => {
     setUploadStatus('');
 
     try {
-      const res = await fetch('http://localhost:5000/upload-user-image', {
+      const res = await fetch('https://wardrobeai-backend.onrender.com/upload-user-image', {
         method: 'POST',
         body: formData,
       });
