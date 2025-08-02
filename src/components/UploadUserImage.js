@@ -26,7 +26,7 @@ const UploadUserImage = ({ userImage, setUserImage }) => {
       const data = await res.json();
 
       if (data.urls) {
-        setUserImage((prev) => [...(prev || []), ...data.urls]);
+         setUserImage(data.urls);
         setUploadStatus('✅ Image uploaded and metadata merged.');
       } else {
         setUploadStatus('❌ Upload failed.');
