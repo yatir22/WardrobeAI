@@ -27,7 +27,7 @@ function App() {
     const token = localStorage.getItem('token');
     if (token && !user) {
       // Fetch user info from backend using token
-      fetch('http://localhost:5000/me', {
+      fetch('https://wardrobeai-backend.onrender.com/me', {
         headers: {
           'Authorization': `Bearer ${token}`
         }

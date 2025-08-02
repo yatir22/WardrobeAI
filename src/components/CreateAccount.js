@@ -12,7 +12,7 @@ const CreateAccount = ({ onCreate, setShowCreate }) => {
   const checkUsername = async (uname) => {
     if (!uname) return;
     try {
-      const res = await fetch(`http://localhost:5000/check-username?username=${encodeURIComponent(uname)}`);
+      const res = await fetch(`https://wardrobeai-backend.onrender.com/check-username?username=${encodeURIComponent(uname)}`);
       const data = await res.json();
       setUsernameAvailable(data.available);
       setUsernameSuggestions(data.suggestions || []);
@@ -34,7 +34,7 @@ const CreateAccount = ({ onCreate, setShowCreate }) => {
     }
     setError('');
     try {
-      const res = await fetch('http://localhost:5000/create', {
+      const res = await fetch('https://wardrobeai-backend.onrender.com/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, username, password })

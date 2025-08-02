@@ -23,7 +23,7 @@ const token = localStorage.getItem('token');
           alert('Please log in to continue.');
           return;
         }
-        const res = await fetch('http://localhost:5000/user-photos', {
+        const res = await fetch('https://wardrobeai-backend.onrender.com/user-photos', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -52,7 +52,7 @@ const token = localStorage.getItem('token');
     setPreviewUrl(null);
 
     try {
-      const res = await fetch("http://localhost:5000/tryon", {
+      const res = await fetch("https://wardrobeai-backend.onrender.com/tryon", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -103,7 +103,7 @@ const token = localStorage.getItem('token');
       
       console.log('🔍 Frontend Debug: Requesting outfit suggestion...');
       // No need to send userId, backend gets it from JWT token
-      const aiRes = await fetch('http://localhost:5000/suggest-outfit', {
+      const aiRes = await fetch('https://wardrobeai-backend.onrender.com/suggest-outfit', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json', 
